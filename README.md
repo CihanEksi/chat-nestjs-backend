@@ -37,6 +37,8 @@ $ yarn install
 ```bash
 # development
 $ yarn run start
+or
+$ yarn run dev
 
 # watch mode
 $ yarn run start:dev
