@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
 import { DatabaseModule } from './common/database/database.module';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { UsersModule } from './users/users.module';
+import { LoggerModule } from 'nestjs-pino';
 
 @Module({
   imports: [
@@ -22,6 +23,29 @@ import { UsersModule } from './users/users.module';
       autoSchemaFile: true,
     }),
     UsersModule,
+    LoggerModule.forRootAsync({
+      useFactory: (configService: ConfigService) => {
+        const isProduction = configService.get('NODE_ENV') === 'production';
+
+        const developmentTransport = {
+          target: 'pino-pretty',
+          options: {
+            singleLine: true,
+          },
+        };
+        const level = isProduction ? 'info' : 'debug';
+
+        const transport = isProduction ? undefined : developmentTransport;
+
+        return {
+          pinoHttp: {
+            transport: transport,
+            level: level,
+          },
+        };
+      },
+      inject: [ConfigService],
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
