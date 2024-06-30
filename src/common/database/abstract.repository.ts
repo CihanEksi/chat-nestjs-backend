@@ -1,27 +1,25 @@
 import { Logger } from '@nestjs/common';
-import { AbstractDocument } from './abstract.schema';
+import { AbstractEntity } from './abstract.entity';
 import { FilterQuery, Model, Types, UpdateQuery } from 'mongoose';
 
-export abstract class AbstractRepository<TDocument extends AbstractDocument> {
+export abstract class AbstractRepository<T extends AbstractEntity> {
   protected abstract readonly logger: Logger;
-  constructor(protected readonly model: Model<TDocument>) {}
+  constructor(protected readonly model: Model<T>) {}
 
-  async create(document: Omit<TDocument, '_id'>): Promise<TDocument> {
+  async create(document: Omit<T, '_id'>): Promise<T> {
     // this.logger.debug(`Creating a new document`);
     const createdDocument = new this.model({
       ...document,
       _id: new Types.ObjectId(),
     });
     const returnedDocument = await createdDocument.save();
-    const toJson = returnedDocument.toJSON() as unknown as TDocument;
+    const toJson = returnedDocument.toJSON() as unknown as T;
     return toJson;
   }
 
-  async findOne(
-    filterQuery: FilterQuery<TDocument>,
-  ): Promise<TDocument | null> {
+  async findOne(filterQuery: FilterQuery<T>): Promise<T | null> {
     // this.logger.debug(`Finding a document`);
-    const document = await this.model.findOne(filterQuery).lean<TDocument>();
+    const document = await this.model.findOne(filterQuery).lean<T>();
     if (!document) {
       this.logger.warn(`Document not found`);
       return null;
@@ -30,13 +28,13 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
   }
 
   async findOneAndUpdate(
-    filterQuery: FilterQuery<TDocument>,
-    update: UpdateQuery<TDocument>,
-  ): Promise<TDocument | null> {
+    filterQuery: FilterQuery<T>,
+    update: UpdateQuery<T>,
+  ): Promise<T | null> {
     // this.logger.debug(`Finding and updating a document`);
     const document = await this.model
       .findOneAndUpdate(filterQuery, update, { new: true })
-      .lean<TDocument>();
+      .lean<T>();
     if (!document) {
       this.logger.warn(`Document not updated on findOne and update`);
       return null;
@@ -44,60 +42,53 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
     return document;
   }
 
-  async find(filterQuery: FilterQuery<TDocument>): Promise<TDocument[]> {
+  async find(filterQuery: FilterQuery<T>): Promise<T[]> {
     // this.logger.debug(`Finding documents`);
-    const documents = await this.model.find(filterQuery).lean<TDocument[]>();
+    const documents = await this.model.find(filterQuery).lean<T[]>();
     return documents;
   }
 
-  async findOneAndDelete(
-    filterQuery: FilterQuery<TDocument>,
-  ): Promise<TDocument> {
+  async findOneAndDelete(filterQuery: FilterQuery<T>): Promise<T> {
     // this.logger.debug(`Finding and deleting a document`);
-    return this.model.findOneAndDelete(filterQuery).lean<TDocument>();
+    return this.model.findOneAndDelete(filterQuery).lean<T>();
   }
 
-  async deleteOne(
-    filterQuery: FilterQuery<TDocument>,
-  ): Promise<TDocument | null> {
+  async deleteOne(filterQuery: FilterQuery<T>): Promise<T | null> {
     // this.logger.debug(`Deleting a document`);
-    return this.model.deleteOne(filterQuery).lean<TDocument>();
+    return this.model.deleteOne(filterQuery).lean<T>();
   }
 
   async updateMany(
-    filterQuery: FilterQuery<TDocument>,
-    update: UpdateQuery<TDocument>,
-  ): Promise<TDocument[]> {
+    filterQuery: FilterQuery<T>,
+    update: UpdateQuery<T>,
+  ): Promise<T[]> {
     // this.logger.debug(`Updating many documents`);
-    return this.model.updateMany(filterQuery, update).lean<TDocument[]>();
+    return this.model.updateMany(filterQuery, update).lean<T[]>();
   }
 
-  async deleteMany(filterQuery: FilterQuery<TDocument>): Promise<TDocument[]> {
+  async deleteMany(filterQuery: FilterQuery<T>): Promise<T[]> {
     // this.logger.debug(`Deleting many documents`);
-    return this.model.deleteMany(filterQuery).lean<TDocument[]>();
+    return this.model.deleteMany(filterQuery).lean<T[]>();
   }
 
   async updateOne(
-    filterQuery: FilterQuery<TDocument>,
-    update: UpdateQuery<TDocument>,
-  ): Promise<TDocument | null> {
+    filterQuery: FilterQuery<T>,
+    update: UpdateQuery<T>,
+  ): Promise<T | null> {
     // this.logger.debug(`Updating a document`);
-    return this.model.updateOne(filterQuery, update).lean<TDocument>();
+    return this.model.updateOne(filterQuery, update).lean<T>();
   }
 
-  async aggregate(pipeline: any[]): Promise<TDocument[]> {
+  async aggregate(pipeline: any[]): Promise<T[]> {
     // this.logger.debug(`Aggregating documents`);
     return this.model.aggregate(pipeline).exec();
   }
-  async countDocuments(filterQuery: FilterQuery<TDocument>): Promise<number> {
+  async counTs(filterQuery: FilterQuery<T>): Promise<number> {
     // this.logger.debug(`Counting documents`);
-    return this.model.countDocuments(filterQuery).lean();
+    return this.model.countDocuments(filterQuery);
   }
 
-  async groupBy(
-    groupBy: string,
-    filterQuery: FilterQuery<TDocument>,
-  ): Promise<TDocument[]> {
+  async groupBy(groupBy: string, filterQuery: FilterQuery<T>): Promise<T[]> {
     // this.logger.debug(`Grouping documents`);
     return this.model.aggregate([
       {
