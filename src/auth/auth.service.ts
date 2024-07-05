@@ -15,8 +15,7 @@ export class AuthService {
 
   async login(user: User, response: Response) {
     const jwtExpiration = this.configService.get('JWT_EXPIRATION_TIME');
-    const expires = moment().add(jwtExpiration, 's').toDate();
-    console.log('expires', expires);
+    const expires = moment().add(+jwtExpiration, 's').toDate();
 
     const tokenPayload: TokenPayload = {
       _id: user._id.toHexString(),

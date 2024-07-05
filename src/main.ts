@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { Logger } from 'nestjs-pino';
 import { ConfigService } from '@nestjs/config';
+import * as cookieParser from 'cookie-parser';
 const CORS_ORIGINS = process.env.CORS_ORIGINS.split(',');
 
 async function bootstrap() {
@@ -12,6 +13,7 @@ async function bootstrap() {
   });
   app.useGlobalPipes(new ValidationPipe());
   app.useLogger(app.get(Logger));
+  app.use(cookieParser());
   const configService = app.get(ConfigService);
   console.log(configService.get('PORT'));
   await app.listen(configService.getOrThrow('PORT'));
