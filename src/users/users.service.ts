@@ -3,6 +3,7 @@ import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
 import { UsersRepository } from './users.repository';
 import * as bcrypt from 'bcrypt';
+import * as mongoose from 'mongoose';
 
 @Injectable()
 export class UsersService {
@@ -23,8 +24,8 @@ export class UsersService {
     return this.usersRepository.find({});
   }
 
-  async findOne(_id: string) {
-    return this.usersRepository.findOne({ _id: _id });
+  async findOne(query: mongoose.FilterQuery<mongoose.Document>) {
+    return this.usersRepository.findOne(query);
   }
 
   async update(_id: string, updateUserInput: UpdateUserInput) {
