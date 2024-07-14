@@ -22,6 +22,14 @@ import { AuthModule } from './auth/auth.module';
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: true,
+      formatError: (error) => {
+        const graphQLFormattedError = {
+          message: error.message,
+          code: error.extensions?.code || 'SERVER_ERROR',
+          success: false,
+        };
+        return graphQLFormattedError;
+      },
     }),
     UsersModule,
     LoggerModule.forRootAsync({

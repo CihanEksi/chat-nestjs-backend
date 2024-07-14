@@ -14,10 +14,33 @@ export class UsersService {
   }
 
   async create(createUserInput: CreateUserInput) {
-    return this.usersRepository.create({
+    const response = {
+      success: false,
+      message: 'Invalid credentials',
+      user: null,
+    };
+
+    const findUser = await this.usersRepository.findOne({
+      email: createUserInput.email,
+    });
+
+    if (findUser) {
+      response.message = 'Invalid credentials'; // for brute force attacks
+      return response;
+    }
+
+    const createUser = await this.usersRepository.create({
       ...createUserInput,
       password: await this.hashPassword(createUserInput.password),
     });
+
+    if (createUser) {
+      response.success = true;
+      response.message = 'User created successfully';
+      response.user = createUser;
+    }
+
+    return response;
   }
 
   async findAll() {

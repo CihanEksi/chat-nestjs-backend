@@ -23,10 +23,9 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
       }
 
       const user = loginResponse.user;
-
       return user;
     } catch (error) {
-      throw new UnauthorizedException(error);
+      throw new UnauthorizedException('Invalid credentials'); // for brute force attacks
     }
   }
 }
