@@ -23,8 +23,12 @@ import { AuthModule } from './auth/auth.module';
       driver: ApolloDriver,
       autoSchemaFile: true,
       formatError: (error) => {
+        const extensionsOriginalError = error.extensions.originalError as Error;
+        const extensionsOriginalErrorMessages =
+          extensionsOriginalError?.message.toString();
+        const handleMessages = extensionsOriginalErrorMessages || error.message;
         const graphQLFormattedError = {
-          message: error.message,
+          message: handleMessages,
           code: error.extensions?.code || 'SERVER_ERROR',
           success: false,
         };

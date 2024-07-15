@@ -5,6 +5,8 @@ import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
 import { UnauthorizedException, UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard';
+import { CurrentUser } from 'src/auth/current-user.decorator';
+import { TokenPayload } from 'src/auth/token-payload.interface';
 
 @Resolver(() => User)
 export class UsersResolver {
@@ -39,5 +41,11 @@ export class UsersResolver {
   @Mutation(() => User)
   removeUser(@Args('_id') _id: string) {
     return this.usersService.remove(_id);
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Query(() => User, { name: 'me' })
+  getMe(@CurrentUser() user: TokenPayload) {
+    return user;
   }
 }
