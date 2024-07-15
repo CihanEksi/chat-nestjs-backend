@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import { AuthPayloadDto } from './dto/auth.dto';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
+import { userMapperForClient } from '../users/mappers/users.mapper';
 
 @Injectable()
 export class AuthService {
@@ -35,6 +36,7 @@ export class AuthService {
 
     response.send({
       token,
+      user: userMapperForClient(user),
       success: true,
       message: 'Login successful',
     });
